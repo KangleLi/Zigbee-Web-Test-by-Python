@@ -1,0 +1,1331 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>zigbee control</title>
+    <link rel="stylesheet" type="text/css" href="../../style/list.css"/>
+<script type="text/javascript" src="../../style/jquery-1.7.2.min.js"></script>
+</head>
+
+<body class="body_index">
+<div class="input_join">
+    <input type="button" id="btn" class="btn_mfyzm" value="Permit Join Network" />
+    <p id="ip" display="none">{{ip}}</p>
+   <script type="text/javascript">
+    var wait=180;
+    document.getElementById("btn").disabled = false;
+    function time(o) {
+        if (wait == 0) {
+            o.removeAttribute("disabled");
+            o.value="Permit Join Network";
+            wait = 180;
+        } else {
+            if (wait == 180){
+                $.ajax({
+                'url' : '/join',
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    alert(msg);
+                },
+                'success' : function(result) {
+                    console.log("success");
+                }
+            });
+
+            }
+            o.setAttribute("disabled", true);
+            o.value="time:(" + wait + ")";
+            wait--;
+            setTimeout(function() {
+                time(o)
+            },
+            1000)
+        }
+    }
+document.getElementById("btn").onclick=function(){time(this);}
+</script>
+</div>
+
+        <div id="light" class="white_content">
+            <p>dual control config</p>
+            scene switch key list：
+        <select id="link" >
+        </select>
+        switch key list：
+        <select id="link1" >
+        </select>
+        <input id="bindbtn" type="button" value="bind"/>
+        <input id="unbindbtn" type="button" value="unbind"/>
+            <p></p>
+            <a href = "javascript:void(0)" onclick = "document.getElementById('light').style.display='none';document.getElementById('fade').style.display='none'">close</a>
+        </div>
+        <div id="fade" class="black_overlay"></div>
+
+        <div id="scen" class="white_content">
+            <p>scene config</p>
+            scene switch key list：
+        <select id="slink" >
+            <!--option>111</option>
+            <option>222</option>
+            <option>333</option-->
+        </select>
+        switch key list：
+        <select id="slink1" >
+            <!--option></option>
+            <option>aaa</option>
+            <option>bbb</option>
+            <option>ccc</option-->
+        </select>
+            action list：
+            <br/>
+        <select id="slink2" >
+            <option>on</option>
+            <option>off</option>
+            <option>c0%</option>
+            <option>c10%</option>
+            <option>c20%</option>
+            <option>c30%</option>
+            <option>c40%</option>
+            <option>c50%</option>
+            <option>c60%</option>
+            <option>c70%</option>
+            <option>c80%</option>
+            <option>c90%</option>
+            <option>c100%</option>
+        </select>
+
+        <input id="addtn" type="button" value="add"/>
+            <div id="scenlist">
+            </div>
+            <p></p>
+            <a href = "javascript:void(0)" onclick = "submitHandler()">submit</a>
+            <a href = "javascript:void(0)" onclick = "document.getElementById('scen').style.display='none';document.getElementById('sfade').style.display='none'">close</a>
+        </div>
+        <div id="sfade" class="black_overlay"></div>
+
+<div class="device"></div>
+
+<!--div class="device" id="1111111">
+    <span class="close"></span>
+    <div class="op_area">
+        <div class="switch_area">
+            <div class="switch">
+                <input type="button" name="2@1@1" value="on"/>
+                <input type="button" name="2@1@0" value="off"/>
+            </div>
+            <div class="switch">
+                <input type="button" name="2@2@1" value="on"/>
+                <input type="button" name="2@2@0" value="off"/>
+            </div>
+        </div>
+        <div class="clear"></div>
+        <div class="switch_area_scen">
+            <div class="switch">
+                <input type="button" name="4@1@1" value="Dual Control Config"/>
+            </div>
+        </div>
+        <div class="switch_area_scenario">
+            <div class="switch">
+                <input type="button" name="4@1@0" value="Scene Config"/>
+            </div>
+        </div>
+    </div>
+    <p>场景开关:111111</p>
+</div-->
+
+<script>
+    //$('.close').click(function(event){
+    //$(this).parent().remove();
+    //})
+
+    $(".close").live("click",function(){
+        $(this).parent().remove();
+        var id = $(this).closest(".device").attr("id");
+        console.log(id);
+        $.ajax({
+                'url' : '/leave?address='+id,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    console.log("remove failed");
+                },
+                'success' : function(result) {
+                    console.log("remove success");
+                }
+            });
+    });
+
+    $("#bindbtn").live("click",function(){
+        var key = $("#link").find("option:selected").text();
+        var device = $("#link1").find("option:selected").text();
+        console.log(key);
+        console.log(device);
+        $.ajax({
+                'url' : '/bind?key='+key+'&device='+device,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    alert("bind failed");
+                },
+                'success' : function(result) {
+                    alert("bind success");
+                    console.log("bind success");
+                    //console.log(event.data);
+                }
+            });
+    });
+
+    $("#unbindbtn").live("click",function(){
+        var key = $("#link").find("option:selected").text();
+        var device = $("#link1").find("option:selected").text();
+        console.log(key);
+        console.log(device);
+        $.ajax({
+                'url' : '/unbind?key='+key+'&device='+device,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    alert("unbind failed");
+                },
+                'success' : function(result) {
+                    alert("unbind success");
+                    console.log("unbind success");
+                    //console.log(event.data);
+                }
+            });
+    });
+
+    $("#addtn").live("click",function(){
+        var key = $("#slink").find("option:selected").text();
+        var device = $("#slink1").find("option:selected").text();
+        var op = $("#slink2").find("option:selected").text();
+        //<p>11@on</p>
+        console.log(key);
+        console.log(device);
+        console.log(op);
+        str = '<p>' + key + ':' + device + ':' + op + '</p>'
+        $("#scenlist").append(str);
+    });
+
+    $(".switch_area :button").live("click",function(){
+        var name = $(this).attr("name");
+        if(name == "20@1@" || name == "20@2@" || name == "20@3@" || name == "21@1@" || name == "21@2@"){
+            //console.log($(this).attr("name"));
+            name = $(this).attr("name") + $(this).next().attr("value");
+        }
+        console.log(name);
+        var id = $(this).closest(".device").attr("id");
+        //alert(id);
+        $.ajax({
+                'url' : '/command?address='+id+'&cmd='+name,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    alert(msg);
+                },
+                'success' : function(result) {
+                    console.log("success");
+                    //console.log(event.data);
+                }
+            });
+        //$(this).parent().remove();
+    });
+
+    $(".switch_area_time :button").live("click",function(){
+        var na = $(this).attr("value");
+        var name = $(this).attr("name");
+        var id = $(this).closest(".device").attr("id");
+        time1(this, na, name, id);
+        console.log(na);
+    });
+    var wait1=60;
+    function time1(o1, na, name, id) {
+        if (wait1 == 0) {
+            o1.removeAttribute("disabled");
+            o1.value=na;
+            wait1 = 60;
+            console.log(na);
+            $.ajax({
+                'url' : '/command?address='+id+'&cmd='+name,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    console.log(msg);
+                },
+                'success' : function(result) {
+                    console.log("success");
+                }
+            });
+        } else {
+            o1.setAttribute("disabled", true);
+            o1.value="time:(" + wait1 + ")";
+            wait1--;
+            setTimeout(function() {
+                time1(o1, na, name, id)
+            },
+            1000)
+        }
+    }
+
+
+    $(".switch_area_scen :button").live("click",function(){
+        var name = $(this).attr("name");
+        var id = $(this).closest(".device").attr("id");
+        document.getElementById('light').style.display='block';
+        document.getElementById('fade').style.display='block';
+
+        $.ajax({
+                'url' : '/getDevices?address='+id+'&cmd='+name,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    $("#link").empty();
+                    $("#link1").empty();
+                    alert("get device error");
+                },
+                'success' : function(result) {
+                    console.log("success");
+                    console.log(result);
+                    console.log(result.keys);
+                    $("#link").empty();
+                    for(var i =0; i < result.keys.length; i++)
+                    {
+                        str = '<option>' + result.keys[i] + '</option>'
+                        $("#link").append(str);
+                    }
+                    $("#link1").empty();
+                    for(var i =0; i < result.devices.length; i++)
+                    {
+                        str = '<option>' + result.devices[i] + '</option>'
+                        $("#link1").append(str);
+                    }
+                }
+            });
+    });
+
+    $("#slink1").change(function(){
+         console.log("list2:%s", $(this).val());
+         id = $(this).val();
+         $.ajax({
+                'url' : '/getDevMethod?address='+id,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    console.log(msg);
+                },
+                'success' : function(result) {
+                    console.log(result);
+                    $("#slink2").empty();
+                    for(var i =0; i < result.length; i++)
+                    {
+                        str = '<option>' + result[i] + '</option>'
+                        $("#slink2").append(str);
+                    }
+                }
+         });
+    });
+
+    $(".switch_area_scenario :button").live("click",function(){
+        var name = $(this).attr("name");
+        var id = $(this).closest(".device").attr("id");
+        document.getElementById('scen').style.display='block';
+        document.getElementById('sfade').style.display='block';
+        $("#scenlist").empty();
+
+        $.ajax({
+                'url' : '/getDevices?address='+id+'&cmd='+name,
+                'type' : 'GET',
+                'cache' : false,
+                'dataType' : 'json',
+                'error': function (msg) {
+                    $("#link").empty();
+                    $("#link1").empty();
+                    alert("get device error");
+                },
+                'success' : function(result) {
+                    console.log("success");
+                    console.log(result);
+                    console.log(result.keys);
+                    $("#slink").empty();
+                    for(var i =0; i < result.keys.length; i++)
+                    {
+                        str = '<option>' + result.keys[i] + '</option>'
+                        $("#slink").append(str);
+                    }
+                    $("#slink1").empty();
+                    for(var i =0; i < result.devices.length; i++)
+                    {
+                        str = '<option>' + result.devices[i] + '</option>'
+                        $("#slink1").append(str);
+                    }
+                }
+            });
+    });
+
+function setDeviceList(obj){
+    console.log("set device list");
+}
+
+function submitHandler(){
+    console.log("submit");
+    var obj = $('#scenlist p');
+    var len = obj.length;
+    console.log(obj);
+
+    var sArray = new Array();
+    var sJson = [];
+    for(var i = 0; i < len; i++)
+    {
+        var temp = $('#scenlist p')[i].innerText;
+        sArray[i] = temp
+        sJson.push(temp);
+    }
+    //var scenList = {};
+    //scenList.sData = sArray;
+    //sJson.push(scenList);
+    var jsonStr = JSON.stringify(sJson);
+    $.ajax({
+            'url' : '/createScen?scen='+jsonStr,
+            'type' : 'GET',
+            'cache' : false,
+            'dataType' : 'json',
+            'error': function (msg) {
+                $("#link").empty();
+                $("#link1").empty();
+                alert("create scenario error");
+                },
+            'success' : function(result) {
+                console.log("create scen success");
+                console.log(result);
+                document.getElementById('scen').style.display='none';
+                document.getElementById('sfade').style.display='none';
+                }
+            });
+    //document.getElementById('scen').style.display='none';
+    //document.getElementById('sfade').style.display='none';
+}
+</script>
+
+<script>
+$(document).ready(function() {
+    ip = $('#ip').text()+':8080';
+    console.log(ip);
+    //webSocket = new WebSocket('ws://'+'192.168.230.140:8080'+'/startWS');
+    webSocket = new WebSocket('ws://'+ip+'/startWS');
+    webSocket.onerror = function (event) {
+      onError(event);
+    };
+    webSocket.onopen = function (event) {
+      onOpen(event);
+    };
+    webSocket.onmessage = function (event) {
+      onMessage(event);
+    };
+});
+
+function onError(event){
+
+}
+function onOpen(event){
+    webSocket.send("brower msg");//
+}
+
+function addCurtain(obj){
+    var cswitchOne = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="11@1@FE" value="100%"/>\
+                                    <input type="button" name="11@1@E5" value="90%"/>\
+                                    <input type="button" name="11@1@CC" value="80%"/>\
+                                    <input type="button" name="11@1@B2" value="70%"/>\
+                                    <input type="button" name="11@1@99" value="60%"/>\
+                                    <input type="button" name="11@1@7F" value="50%"/>\
+                                    <input type="button" name="11@1@66" value="40%"/>\
+                                    <input type="button" name="11@1@4C" value="30%"/>\
+                                    <input type="button" name="11@1@33" value="20%"/>\
+                                    <input type="button" name="11@1@19" value="10%"/>\
+                                    <input type="button" name="11@1@01" value="0%"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                实时位置:\
+                                <input type="text" size="45" name="ep1_st" value="（1%误差属正常）"/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="10@1@1" value="启动校准"/>\
+                                    <input type="button" name="10@1@0" value="结束校准"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    定时设置:\
+                                    <input type="button" name="21@1@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-位置"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="22@1@0" value="查看定时余量"/>\
+                                    <input type="text" name="ep1_dly" size="45" value=""/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <div class="clear"></div>\
+                        <p><br/>一位窗帘开关:'+obj.Address+'</p>\
+                    </div>'
+
+    var cswitchTwo = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        >>>>>>>>>>>>>>>>>>>>>>>>>>>窗帘一<<<<<<<<<<<<<<<<<<<<<<<<<<<<\
+                        <div class="op_area" name="c_ep1">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="12@1@FE" value="100%"/>\
+                                    <input type="button" name="12@1@E5" value="90%"/>\
+                                    <input type="button" name="12@1@CC" value="80%"/>\
+                                    <input type="button" name="12@1@B2" value="70%"/>\
+                                    <input type="button" name="12@1@99" value="60%"/>\
+                                    <input type="button" name="12@1@7F" value="50%"/>\
+                                    <input type="button" name="12@1@66" value="40%"/>\
+                                    <input type="button" name="12@1@4C" value="30%"/>\
+                                    <input type="button" name="12@1@33" value="20%"/>\
+                                    <input type="button" name="12@1@19" value="10%"/>\
+                                    <input type="button" name="12@1@01" value="0%"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                实时位置:\
+                                <input type="text" size="45" name="ep1_st" value="（1%误差属正常）"/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="10@1@1" value="启动校准"/>\
+                                    <input type="button" name="10@1@0" value="结束校准"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    定时设置:\
+                                    <input type="button" name="21@1@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-位置"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="22@1@0" value="查看定时余量"/>\
+                                    <input type="text" name="ep1_dly" size="45" value=""/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <div class="clear"></div>\
+                        >>>>>>>>>>>>>>>>>>>>>>>>>>>窗帘二<<<<<<<<<<<<<<<<<<<<<<<<<<<<\
+                        <div class="op_area" name="c_ep2">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="12@2@FE" value="100%"/>\
+                                    <input type="button" name="12@2@E5" value="90%"/>\
+                                    <input type="button" name="12@2@CC" value="80%"/>\
+                                    <input type="button" name="12@2@B2" value="70%"/>\
+                                    <input type="button" name="12@2@99" value="60%"/>\
+                                    <input type="button" name="12@2@7F" value="50%"/>\
+                                    <input type="button" name="12@2@66" value="40%"/>\
+                                    <input type="button" name="12@2@4C" value="30%"/>\
+                                    <input type="button" name="12@2@33" value="20%"/>\
+                                    <input type="button" name="12@2@19" value="10%"/>\
+                                    <input type="button" name="12@2@01" value="0%"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                实时位置:\
+                                <input type="text" size="45" name="ep2_st" value="（1%误差属正常）"/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="10@2@1" value="启动校准"/>\
+                                    <input type="button" name="10@2@0" value="结束校准"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    定时设置:\
+                                    <input type="button" name="21@2@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-位置"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="22@2@0" value="查看定时余量"/>\
+                                    <input type="text" name="ep2_dly" size="45" value=""/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <div class="clear"></div>\
+                        <div class="switch_area">\
+                            <div class="switch">\
+                                <input type="button" name="12@2@101" value="一键全开"/>\
+                                <input type="button" name="12@2@100" value="一键全关"/>\
+                            </div> \
+                        </div>\
+                        <div class="clear"></div>\
+                        <p><br/>两位窗帘开关:'+obj.Address+'</p>\
+                    </div>'
+
+    if(obj.DeviceType == "3001"){
+        $(".device:last").after(cswitchOne);
+    }
+    else if(obj.DeviceType == "3002"){
+        $(".device:last").after(cswitchTwo);
+    }
+
+}
+
+function addSwith(obj){
+    var switchOne = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="1@1@1" value="on"/>\
+                                    <input type="button" name="1@1@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                <input type="text" size="45" size="100" name="st" value=""/>\
+                                <br>\
+                                <input type="text" size="45" name="lt" value=""/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="8@1@1" value="Position indicator"/>\
+                                    <input type="button" name="8@1@0" value="Status indicator"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <hr>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    定时设置:\
+                                    <input type="button" name="20@1@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-粒度"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <p>定时参数说明：（0-粒度为0.1s、1-粒度为1s）\
+                                            <br>\
+                                            时间-粒度，定时并设置粒度\
+                                            <br>\
+                                            时间-*，定时、不设置粒度\
+                                            <br>\
+                                            *-粒度，不定时只设置粒度\
+                            </p>\
+                        </div>\
+                        <p>switch:'+obj.Address+'</p>\
+                    </div>'
+
+    var switchTwo = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="2@1@1" value="on"/>\
+                                    <input type="button" name="2@1@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="2@2@1" value="on"/>\
+                                    <input type="button" name="2@2@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                <input type="text" size="45" name="st" value=""/>\
+                                <br>\
+                                <input type="text" size="45" name="lt" value=""/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="8@1@1" value="Position indicator"/>\
+                                    <input type="button" name="8@1@0" value="Status indicator"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="2@0@1" value="ALL ON"/>\
+                                    <input type="button" name="2@0@0" value="ALL OFF"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area">\
+                            <hr>\
+                                <div class="switch">\
+                                    定时设置1路:\
+                                    <input type="button" name="20@1@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-粒度"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    定时设置2路:\
+                                    <input type="button" name="20@2@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-粒度"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <p>定时参数说明：（0-粒度为0.1s、1-粒度为1s）\
+                                            <br>\
+                                            时间-粒度，定时并设置粒度\
+                                            <br>\
+                                            时间-*，定时、不设置粒度\
+                                            <br>\
+                                            *-粒度，不定时只设置粒度\
+                            </p>\
+                        </div>\
+                        <p>switch:'+obj.Address+'</p>\
+                    </div>'
+    var switchThree = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="3@1@1" value="on"/>\
+                                    <input type="button" name="3@1@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@2@1" value="on"/>\
+                                    <input type="button" name="3@2@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@3@1" value="on"/>\
+                                    <input type="button" name="3@3@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                <input type="text" size="45" name="st" value=""/>\
+                                <br>\
+                                <input type="text" size="45" name="lt" value=""/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="8@1@1" value="Position indicator"/>\
+                                    <input type="button" name="8@1@0" value="Status indicator"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="3@0@1" value="ALL ON"/>\
+                                    <input type="button" name="3@0@0" value="ALL OFF"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area_time">\
+                                <div class="switch">\
+                                    <input type="button" name="3@0@1" value="All On after one minute"/>\
+                                    <input type="button" name="3@0@0" value="All Off after one minute"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area">\
+                            <hr>\
+                                <div class="switch">\
+                                    定时设置1路:\
+                                    <input type="button" name="20@1@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-粒度"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    定时设置2路:\
+                                    <input type="button" name="20@2@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-粒度"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    定时设置3路:\
+                                    <input type="button" name="20@3@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-粒度"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <p>定时参数说明：（0-粒度为0.1s、1-粒度为1s）\
+                                            <br>\
+                                            时间-粒度，定时并设置粒度\
+                                            <br>\
+                                            时间-*，定时、不设置粒度\
+                                            <br>\
+                                            *-粒度，不定时只设置粒度\
+                            </p>\
+                        </div>\
+                        <p>switch:'+obj.Address+'</p>\
+                    </div>'
+    var switchFour = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="on"/>\
+                                    <input type="button" name="4@1@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="4@2@1" value="on"/>\
+                                    <input type="button" name="4@2@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="4@3@1" value="on"/>\
+                                    <input type="button" name="4@3@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="4@4@1" value="on"/>\
+                                    <input type="button" name="4@4@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                <input type="text" size="45" name="st" value=""/>\
+                                <br>\
+                                <input type="text" size="45" name="lt" value=""/>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="8@1@1" value="Position indicator"/>\
+                                    <input type="button" name="8@1@0" value="Status indicator"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="4@0@1" value="ALL ON"/>\
+                                    <input type="button" name="4@0@0" value="ALL OFF"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area_time">\
+                                <div class="switch">\
+                                    <input type="button" name="4@0@1" value="All On after one minute"/>\
+                                    <input type="button" name="4@0@0" value="All Off after one minute"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area">\
+                            <hr>\
+                                <div class="switch">\
+                                    定时设置1路:\
+                                    <input type="button" name="20@1@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-粒度"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    定时设置2路:\
+                                    <input type="button" name="20@2@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-粒度"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    定时设置3路:\
+                                    <input type="button" name="20@3@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-粒度"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    定时设置4路:\
+                                    <input type="button" name="20@4@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-粒度"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <p>定时参数说明：（0-粒度为0.1s、1-粒度为1s）\
+                                            <br>\
+                                            时间-粒度，定时并设置粒度\
+                                            <br>\
+                                            时间-*，定时、不设置粒度\
+                                            <br>\
+                                            *-粒度，不定时只设置粒度\
+                            </p>\
+                        </div>\
+                        <p>switch:'+obj.Address+'</p>\
+                    </div>'
+    if(obj.DeviceType == "1101"){
+        $(".device:last").after(switchOne);
+    }
+    else if(obj.DeviceType == "1102"){
+        //alert("12");
+        $(".device:last").after(switchTwo);
+    }
+    else if(obj.DeviceType == "1103"){
+        $(".device:last").after(switchThree);
+    }
+    else if(obj.DeviceType == "1104"){
+        $(".device:last").after(switchFour);
+    }
+    //console.log(event.data);
+    //$(":text").val(obj.State);
+    //$(".device:last").after(divStr);:input[name='keleyi']
+    /*
+    if (obj.hasOwnProperty("State")){
+        newId = "#" + obj.Address + " :input[name='st']";
+        //alert(newId);
+        //var sub = eval('(' + obj.State + ')');
+        //alert(sub);
+        var point = obj.EndpointId;
+        var output ='第' +point+ 'switch,'+'状态:' + obj.State.State;
+        $(newId).val(output);
+    }*/
+
+    //$("body").on("click", ".close", function{\
+        //$(newId).remove();
+    //});
+    //$(".device:last").after(divStr);
+    //$(".device:last").append(divStr);
+}
+
+function changeStatus(obj){
+
+    if (obj.hasOwnProperty("State")){
+        newId = "#" + obj.Address + " :input[name='st']";
+        //alert(newId);
+        //var sub = eval('(' + obj.State + ')');
+        //alert(sub);
+        var point = obj.EndpointId;
+        var output ='第' +point+ 'switch,'+'状态:' + obj.State.State;
+        $(newId).val(output);
+    }
+}
+
+
+
+function addSocket(obj){
+    var socketThree = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="5@1@1" value="on"/>\
+                                    <input type="button" name="5@1@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                Electricity:<input type="text" size="45" name="at" value="0"/>\
+                                <br>\
+                                Power:<input type="text" size="45" name="wt" value="0"/>\
+                                <br>\
+                                Voltage:<input type="text" size="45" name="vt" value="0"/>\
+                                <br>\
+                                <!--input type="text" size="45" name="lt" value="light state"/-->\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="6@1@1" value="Child lock On"/>\
+                                    <input type="button" name="6@1@0" value="Child lock Off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <hr>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    定时设置:\
+                                    <input type="button" name="20@1@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-粒度"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <p>定时参数说明：（0-粒度为0.1s、1-粒度为1s）\
+                                            <br>\
+                                            时间-粒度，定时并设置粒度\
+                                            <br>\
+                                            时间-*，定时、不设置粒度\
+                                            <br>\
+                                            *-粒度，不定时只设置粒度\
+                            </p>\
+                        </div>\
+                        <p>16A Socket:'+obj.Address+'</p>\
+                    </div>'
+    var socketFive = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="5@1@1" value="on"/>\
+                                    <input type="button" name="5@1@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="state_area">\
+                                Electricity:<input type="text" size="45" name="at" value="0"/>\
+                                <br>\
+                                Power:<input type="text" size="45" name="wt" value="0"/>\
+                                <br>\
+                                Voltage:<input type="text" size="45" name="vt" value="0"/>\
+                                <br>\
+                                <!--input type="text" size="45" name="lt" value="light state"/-->\
+                            </div>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="6@1@1" value="Child lock On"/>\
+                                    <input type="button" name="6@1@0" value="Child lock Off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <hr>\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    定时设置:\
+                                    <input type="button" name="20@1@" value="定时"/>\
+                                    <input type="text" size="45" value="时间-粒度"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <p>定时参数说明：（0-粒度为0.1s、1-粒度为1s）\
+                                            <br>\
+                                            时间-粒度，定时并设置粒度\
+                                            <br>\
+                                            时间-*，定时、不设置粒度\
+                                            <br>\
+                                            *-粒度，不定时只设置粒度\
+                            </p>\
+                        </div>\
+                        <p>10A Socket:'+obj.Address+'</p>\
+                    </div>'
+
+    if(obj.DeviceType == "1003"){
+        $(".device:last").after(socketThree);
+    }
+    else if(obj.DeviceType == "1005"){
+        //alert("12");
+        $(".device:last").after(socketFive);
+    }
+
+    //$(".device:last").after(socketOne);
+}
+
+function changeSocketStatus(obj){
+    subType = obj.subType
+    if(subType == '0x0508'){
+        newId = "#" + obj.Address + " :input[name='at']";
+        var output = obj.State + ' mA';
+        $(newId).val(output);
+    }
+    else if (subType == '0x050B'){
+        newId = "#" + obj.Address + " :input[name='wt']";
+        var output = obj.State + ' W';
+        $(newId).val(output);
+    }
+    else if (subType == '0x0505'){
+        newId = "#" + obj.Address + " :input[name='vt']";
+        var output = obj.State + ' V';
+        $(newId).val(output);
+    }
+    /*
+    if (obj.hasOwnProperty("State")){
+        newId = "#" + obj.Address + " :input[name='st']";
+        //var point = obj.EndpointId;
+        var output ='插座通电状态:' + obj.State.State;
+        $(newId).val(output);
+    }
+    */
+}
+
+
+/* 窗帘level更新 */
+function updateCurtain(obj){
+    subType = obj.subType;
+    var ep = obj.endPoint;
+    if(subType == '0x0000'){
+        if(ep == '1')
+            newId = "#" + obj.Address + " :input[name='ep1_st']";
+        else if(ep == '2')
+            newId = "#" + obj.Address + " :input[name='ep2_st']";
+        else
+            return;
+        console.log("___________________");
+        console.log(newId);
+        var level = obj.State + "%";
+        $(newId).val(level);
+    }
+}
+
+/* 窗帘定时更新 */
+function updateCurtainTime(obj){
+    subType = obj.subType;
+    var ep = obj.endPoint;
+    if(subType == '0x05'){
+        if(ep == '1')
+            newId = "#" + obj.Address + " :input[name='ep1_dly']";
+        else if(ep == '2')
+            newId = "#" + obj.Address + " :input[name='ep2_dly']";
+        else
+            return;
+        console.log("___________________");
+        console.log(newId);
+        var level = obj.State + " s";
+        $(newId).val(level);
+    }
+}
+
+
+/*
+{"Action":"ReportJoin","Address":"000D6F00104F27E3",\
+"Reporting":"300","DeviceType":"1202","ModelId":"RC-EM"}
+    var divStr = '<div class="device" id="' + obj.address + '">\
+                    <span class="close"></span>\
+                    <div class="op_area">\
+                        <input type="button" value="on"/>\
+                        <input type="button" value="off"/>\
+                        <input type="text" value="real state"/>\
+                    </div>\
+                    <p>device title5</p>\
+                 </div>'
+                 1@1@1 jiwei endpoint on/off
+*/
+function onMessage(event){
+    //alert(event.data);
+    var obj = eval('(' + event.data + ')');
+    console.log("message!");
+    console.log(obj);
+
+    var action = obj.Action;
+    if(action == 'ReportJoin')
+    {
+        var type = obj.DeviceType;
+        //var type = obj.deviceType;
+        switch(type)
+        {
+            case '1101':
+            case '1102':
+            case '1103':
+            case '1104':
+                addSwith(obj);
+                break;
+            case '1003':
+            case '1005':
+                addSocket(obj);
+                break;
+            case '2001':
+            case '2002':
+            case '2003':
+            case '2004':
+                addScenarioSwitch(obj);
+                break;
+            case '3001':
+            case '3002':
+                addCurtain(obj);
+                console.log("窗帘add");
+                break;
+            default:
+                alert(type);
+                break;
+        }
+    }
+    else if (action == 'leave')
+    {
+        mac = "#" + obj.Address;
+        console.log(mac);
+        $(mac).remove();
+    }
+    else if (action == 'update')
+    {
+        stateType = obj.type;
+        if( stateType == '0207')
+        {
+            changeStatus(obj);
+        }
+        else if( stateType == 'socket')
+        {
+            console.log("start change socket status");
+            changeSocketStatus(obj);
+        }
+        else if( stateType == 'curtain')
+        {
+            console.log("窗帘 level 值更新！");
+            updateCurtain(obj);
+        }
+        else if( stateType == 'curtain_time')
+        {
+            //console.log("窗帘 level 值更新！");
+            updateCurtainTime(obj);
+        }
+        else
+        {
+            console.log("unknow status");
+            console.log(stateType);
+        }
+    }
+
+
+}
+
+function addScenarioSwitch(obj){
+    var sswitchOne = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="1@1@1" value="on"/>\
+                                    <input type="button" name="1@1@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area_scen">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="Dual Control Config"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area_scenario">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@0" value="Scene Config"/>\
+                                </div>\
+                            </div>\
+                            <!--div class="switch_area_scen">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="Dual Control Config"/>\
+                                    <input type="button" name="4@1@0" value="Scene Config"/>\
+                                </div>\
+                            </div-->\
+                        </div>\
+                        <p>One Way Scene Switch:'+obj.Address+'</p>\
+                    </div>'
+
+    var sswitchTwo = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="2@1@1" value="on"/>\
+                                    <input type="button" name="2@1@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="2@2@1" value="on"/>\
+                                    <input type="button" name="2@2@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area_scen">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="Dual Control Config"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area_scenario">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@0" value="Scene Config"/>\
+                                </div>\
+                            </div>\
+                            <!--div class="switch_area_scen">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="Dual Control Config"/>\
+                                    <input type="button" name="4@1@0" value="Scene Config"/>\
+                                </div>\
+                            </div-->\
+                        </div>\
+                        <p>Two Way Scene Switch:'+obj.Address+'</p>\
+                    </div>'
+    var sswitchThree = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="3@1@1" value="on"/>\
+                                    <input type="button" name="3@1@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@2@1" value="on"/>\
+                                    <input type="button" name="3@2@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@3@1" value="on"/>\
+                                    <input type="button" name="3@3@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area_scen">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="Dual Control Config"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area_scenario">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@0" value="Scene Config"/>\
+                                </div>\
+                            </div>\
+                            <!--div class="switch_area_scen">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="Dual Control Config"/>\
+                                    <input type="button" name="4@1@0" value="Scene Config"/>\
+                                </div>\
+                            </div-->\
+                        </div>\
+                        <p>Three Way Scene Switch:'+obj.Address+'</p>\
+                    </div>'
+    var sswitchFour = '<div class="device" id="' + obj.Address + '">\
+                        <span class="close"></span>\
+                        <div class="op_area">\
+                            <div class="switch_area">\
+                                <div class="switch">\
+                                    <input type="button" name="3@1@1" value="on"/>\
+                                    <input type="button" name="3@1@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@2@1" value="on"/>\
+                                    <input type="button" name="3@2@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@3@1" value="on"/>\
+                                    <input type="button" name="3@3@0" value="off"/>\
+                                </div>\
+                                <div class="switch">\
+                                    <input type="button" name="3@3@1" value="on"/>\
+                                    <input type="button" name="3@3@0" value="off"/>\
+                                </div>\
+                            </div>\
+                            <div class="clear"></div>\
+                            <div class="switch_area_scen">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@1" value="Dual Control Config"/>\
+                                </div>\
+                            </div>\
+                            <div class="switch_area_scenario">\
+                                <div class="switch">\
+                                    <input type="button" name="4@1@0" value="Scene Config"/>\
+                                </div>\
+                            </div>\
+                        </div>\
+                        <p>Four Way Scene Switch:'+obj.Address+'</p>\
+                    </div>'
+    if(obj.DeviceType == "2001"){
+        $(".device:last").after(sswitchOne);
+    }
+    else if(obj.DeviceType == "2002"){
+        $(".device:last").after(sswitchTwo);
+    }
+    else if(obj.DeviceType == "2003"){
+        $(".device:last").after(sswitchThree);
+    }
+    else if(obj.DeviceType == "2004"){
+        $(".device:last").after(sswitchFour);
+    }
+}
+</script>
+</body>
+</html>

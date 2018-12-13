@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"> 
+<html> 
+    <head> 
+        <title>点击文字弹出一个DIV层窗口代码</title> 
+        <style> 
+        .black_overlay{ 
+            display: none; 
+            position: absolute; 
+            top: 0%; 
+            left: 0%; 
+            width: 100%; 
+            height: 100%; 
+            background-color: black; 
+            z-index:1001; 
+            -moz-opacity: 0.8; 
+            opacity:.80; 
+            filter: alpha(opacity=88); 
+        } 
+        .white_content { 
+            display: none; 
+            position: absolute; 
+            top: 25%; 
+            left: 25%; 
+            width: 55%; 
+            height: 55%; 
+            padding: 20px; 
+            border: 10px solid black;
+            background-color: white; 
+            z-index:1002; 
+            overflow: auto; 
+        } 
+    </style> 
+    </head> 
+    <body> 
+        <p>弹出层：<a href = "javascript:void(0)" onclick = "document.getElementById('light').style.display='block';document.getElementById('fade').style.display='block'">请点这里</a></p>
+        <div id="light" class="white_content">
+            <p>双控配置</p>
+            场景开关列表：
+        <input type="url" list="slist" name="link" />
+        <datalist id="slist">
+            <option label="aaa" value="http://www.w3school.com.cn" />
+            <option label="bbb" value="http://www.google.com" />
+            <option label="ccc" value="http://www.microsoft.com" />
+        </datalist>
+        设备列表：
+        <input type="url" list="dlist" name="link1" />
+        <datalist id="dlist">
+            <option label="W3School" value="http://www.w3school.com.cn" />
+            <option label="Google" value="http://www.google.com" />
+            <option label="Microsoft" value="http://www.microsoft.com" />
+        </datalist>
+        <input type="button" value="绑定"/>
+            <p></p>
+            <a href = "javascript:void(0)" onclick = "document.getElementById('light').style.display='none';document.getElementById('fade').style.display='none'">关闭</a>
+        </div>
+        <div id="fade" class="black_overlay"></div> 
+    </body> 
+</html>
